@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gonstoll/workouts/internal/app"
+	"github.com/gonstoll/workouts/internal/routes"
 )
 
 func main() {
@@ -19,7 +20,10 @@ func main() {
 		panic(err)
 	}
 
+	r := routes.SetupRoutes(app)
+
 	server := http.Server{
+		Handler:      r,
 		Addr:         fmt.Sprintf(":%d", port),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
@@ -28,14 +32,8 @@ func main() {
 
 	app.Logger.Printf("App is running on port %d", port)
 
-	http.HandleFunc("/health", HealthCheck)
-
 	err = server.ListenAndServe()
 	if err != nil {
 		app.Logger.Fatal(err)
 	}
-}
-
-func HealthCheck(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Status is available\n")
 }
