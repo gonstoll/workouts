@@ -9,10 +9,9 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 )
-
 -- +goose StatementEnd
+
 -- +goose Down
 -- +goose StatementBegin
 DROP TABLE users;
-
 -- +goose StatementEnd
