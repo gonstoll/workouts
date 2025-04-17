@@ -5,10 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/gonstoll/workouts/internal/store"
+	"github.com/gonstoll/workouts/internal/utils"
 )
 
 type WorkoutHandler struct {
@@ -20,15 +19,9 @@ func NewWorkoutHandler(workoutStore store.WorkoutStore) *WorkoutHandler {
 }
 
 func (wh *WorkoutHandler) HandleGetWorkoutByID(w http.ResponseWriter, r *http.Request) {
-	paramsWorkoutID := chi.URLParam(r, "id")
-	if paramsWorkoutID == "" {
-		http.NotFound(w, r)
-		return
-	}
-
-	workoutId, err := strconv.ParseInt(paramsWorkoutID, 10, 64)
+	workoutId, err := utils.ReadIDParam(r)
 	if err != nil {
-		http.NotFound(w, r)
+		fmt.Println(err.Error())
 		return
 	}
 
@@ -67,15 +60,9 @@ func (wh *WorkoutHandler) HandleCreateWorkout(w http.ResponseWriter, r *http.Req
 }
 
 func (wh *WorkoutHandler) HandleUpdateWorkoutByID(w http.ResponseWriter, r *http.Request) {
-	paramsWorkoutID := chi.URLParam(r, "id")
-	if paramsWorkoutID == "" {
-		http.NotFound(w, r)
-		return
-	}
-
-	workoutId, err := strconv.ParseInt(paramsWorkoutID, 10, 64)
+	workoutId, err := utils.ReadIDParam(r)
 	if err != nil {
-		http.NotFound(w, r)
+		fmt.Println(err.Error())
 		return
 	}
 
@@ -137,15 +124,9 @@ func (wh *WorkoutHandler) HandleUpdateWorkoutByID(w http.ResponseWriter, r *http
 }
 
 func (wh *WorkoutHandler) HandleDeleteWorkoutByID(w http.ResponseWriter, r *http.Request) {
-	paramsWorkoutID := chi.URLParam(r, "id")
-	if paramsWorkoutID == "" {
-		http.NotFound(w, r)
-		return
-	}
-
-	workoutId, err := strconv.ParseInt(paramsWorkoutID, 10, 64)
+	workoutId, err := utils.ReadIDParam(r)
 	if err != nil {
-		http.NotFound(w, r)
+		fmt.Println(err.Error())
 		return
 	}
 
