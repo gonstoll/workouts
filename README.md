@@ -19,8 +19,23 @@ you can run
 psql -h localhost -p 5432 -U postgres
 ```
 
-Once your database is connected, start the application by running:
+Once your databse is connected, run migrations with:
+
+```bash
+goose -dir migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" up
+```
+
+Start the application by running:
 
 ```bash
 go run main.go
+```
+
+## Testing
+
+This application spins up a PostgreSQL test database on port 5433. Same as with
+the main database, to inspect changes to it you can run:
+
+```bash
+psql -h localhost -p 5433 -U postgres
 ```

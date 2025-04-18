@@ -18,5 +18,9 @@ func SetupRoutes(app *app.Application) *chi.Mux {
 
 	// Users
 	r.Post("/users", app.UserHandler.HandleRegisterUser)
+
+	// Tokens
+	r.Post("/token/authentication", app.TokenHandler.HandleCreateToken)
+
 	return r
 }
