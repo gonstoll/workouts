@@ -29,9 +29,17 @@ func (wh *WorkoutHandler) HandleGetWorkoutByID(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	workout, err := wh.workoutStore.GetWorkoutByID(workoutId)
+	user := middleware.GetUser(r)
+
+	workout, err := wh.workoutStore.GetWorkoutByID(workoutId, user.ID)
 	if err != nil {
 		wh.logger.Printf("[ERROR] GetWorkoutByID: %v", err)
+		utils.WriteJSON(w, http.StatusNotFound, utils.Envelope{"error": "Workout not found"})
+		return
+	}
+
+	if workout == nil {
+		wh.logger.Printf("[ERROR] GetWorkoutByID - no workout: %v", err)
 		utils.WriteJSON(w, http.StatusNotFound, utils.Envelope{"error": "Workout not found"})
 		return
 	}
@@ -74,7 +82,9 @@ func (wh *WorkoutHandler) HandleUpdateWorkoutByID(w http.ResponseWriter, r *http
 		return
 	}
 
-	existingWorkout, err := wh.workoutStore.GetWorkoutByID(workoutId)
+	user := middleware.GetUser(r)
+
+	existingWorkout, err := wh.workoutStore.GetWorkoutByID(workoutId, user.ID)
 	if err != nil {
 		wh.logger.Printf("[ERROR] GetWorkoutByID: %v", err)
 		utils.WriteJSON(w, http.StatusInternalServerError, utils.Envelope{"error": "Internal server error"})
@@ -82,7 +92,8 @@ func (wh *WorkoutHandler) HandleUpdateWorkoutByID(w http.ResponseWriter, r *http
 	}
 
 	if existingWorkout == nil {
-		http.NotFound(w, r)
+		wh.logger.Printf("[ERROR] GetWorkoutByID - no workout: %v", err)
+		utils.WriteJSON(w, http.StatusNotFound, utils.Envelope{"error": "Workout not found"})
 		return
 	}
 

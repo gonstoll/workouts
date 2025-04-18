@@ -33,7 +33,7 @@ func NewPostgresWorkoutStore(db *sql.DB) *PostgresWorkoutStore {
 
 type WorkoutStore interface {
 	CreateWorkout(*Workout) (*Workout, error)
-	GetWorkoutByID(id int64) (*Workout, error)
+	GetWorkoutByID(id int64, userID int) (*Workout, error)
 	UpdateWorkout(*Workout) error
 	DeleteWorkout(id int64) error
 	GetWorkoutOwner(id int64) (int, error)
@@ -76,14 +76,14 @@ func (pg *PostgresWorkoutStore) CreateWorkout(workout *Workout) (*Workout, error
 	return workout, nil
 }
 
-func (pg *PostgresWorkoutStore) GetWorkoutByID(id int64) (*Workout, error) {
+func (pg *PostgresWorkoutStore) GetWorkoutByID(id int64, userID int) (*Workout, error) {
 	workout := &Workout{}
 	query := `
 	SELECT id, title, description, duration_minutes, calories_burned
 	FROM workouts
-	WHERE id = $1
+	WHERE id = $1 AND user_id = $2
 	`
-	err := pg.db.QueryRow(query, id).Scan(&workout.ID, &workout.Title, &workout.Description, &workout.DurationMinutes, &workout.CaloriesBurned)
+	err := pg.db.QueryRow(query, id, userID).Scan(&workout.ID, &workout.Title, &workout.Description, &workout.DurationMinutes, &workout.CaloriesBurned)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
