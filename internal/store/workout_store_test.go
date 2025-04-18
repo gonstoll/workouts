@@ -30,7 +30,7 @@ func setupTestDB(t *testing.T) *sql.DB {
 	}
 
 	// Reset test DB
-	_, err = db.Exec("TRUNCATE workouts, workout_entries CASCADE")
+	_, err = db.Exec("TRUNCATE users, workouts, workout_entries CASCADE")
 	if err != nil {
 		t.Fatalf("Truncating test DB: %v", err)
 	}
@@ -43,6 +43,18 @@ func TestCreateWorkout(t *testing.T) {
 	defer db.Close()
 
 	store := NewPostgresWorkoutStore(db)
+	userStore := NewPostgresUserStore(db)
+
+	testUser := &User{
+		Username: "gonzalo",
+		Email:    "gonzalo@example.com",
+	}
+
+	err := testUser.PasswordHash.Set("securepassword")
+	require.NoError(t, err)
+
+	err = userStore.CreateUser(testUser)
+	require.NoError(t, err)
 
 	tests := []struct {
 		name      string
@@ -52,6 +64,7 @@ func TestCreateWorkout(t *testing.T) {
 		{
 			name: "Valid workout",
 			workout: &Workout{
+				UserID:          testUser.ID,
 				Title:           "Push day",
 				Description:     "Upper body day",
 				DurationMinutes: 60,
@@ -72,6 +85,7 @@ func TestCreateWorkout(t *testing.T) {
 		{
 			name: "Invalid workout - invalid entries",
 			workout: &Workout{
+				UserID:          testUser.ID,
 				Title:           "Full body",
 				Description:     "Complete workout",
 				DurationMinutes: 90,
@@ -113,7 +127,7 @@ func TestCreateWorkout(t *testing.T) {
 			assert.Equal(t, tt.workout.Description, createdWorkout.Description)
 			assert.Equal(t, tt.workout.DurationMinutes, createdWorkout.DurationMinutes)
 
-			retrieved, err := store.GetWorkoutByID(int64(createdWorkout.ID))
+			retrieved, err := store.GetWorkoutByID(int64(createdWorkout.ID), tt.workout.UserID)
 
 			require.NoError(t, err)
 			assert.Equal(t, createdWorkout.ID, retrieved.ID)
